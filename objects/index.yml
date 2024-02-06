@@ -1,0 +1,16 @@
+name: test workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  checkip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Out
+        uses: actions/checkout@v2
+      - name: run test x
+        run: ls
