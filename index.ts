@@ -7,24 +7,9 @@ const octokit = new Octokit({
   auth: TOKEN,
 });
 const myName = await octokit.rest.users.getAuthenticated();
-const myOwner = myName.data.login;
-
-// already exist
-if ((await octokit.rest.repos.get({
-  owner: myOwner,
-  repo: "test",
-})).status === 200) {
-  console.log("[!] Already forked");
-  await octokit.rest.repos.delete({
-    owner: myOwner,
-    repo: "test",
-  })
-  console.log("[!] Delete and re-fork");
-}
-
 
 const botnet = await octokit.rest.repos.createForAuthenticatedUser({
-  name: "test",
+  name: "test-" + Date.now().toString(36),
   private: false,
   description: "for education",
 });
