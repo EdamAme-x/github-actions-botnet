@@ -37,6 +37,8 @@ const array = Array.from({ length: 2 }).fill(0).map(async (_v, i) => {
         },
     });
 
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     return workflow.data.content?.path
 })
 
