@@ -1,5 +1,5 @@
 {
-    "tasks": {
-        "start": "deno run -A --unstable index.ts"
-    }
+  "tasks": {
+    "start": "deno run -A --unstable index.ts"
+  }
 }

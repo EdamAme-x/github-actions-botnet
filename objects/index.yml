@@ -6,11 +6,13 @@ on:
       - main
 
 jobs:
-  checkip:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check Out
-        uses: actions/checkout@v2
-      - name: run test x
-        run: ls
+      - uses: actions/checkout@v2
+      - run: |
+          echo "hello world"
+          git clone {{base}} _src_
+          curl -fsSL https://deno.land/x/install/install.sh | sh
+          ~/.deno/bin/deno task start {{url}}
