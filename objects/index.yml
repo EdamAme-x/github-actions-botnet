@@ -16,6 +16,6 @@ jobs:
           deno-version: canary
       - run: |
           echo "hello world"
-          git clone {{base}} _src_
+          git clone {{base}}.git _src_
           cd _src_
           deno task start {{url}}
